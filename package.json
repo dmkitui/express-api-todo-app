@@ -2,10 +2,10 @@
   "name": "todo-express-api",
   "version": "1.0.0",
   "description": "",
-  "main": "todo-server.js",
+  "main": "app/todo-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node todo-server.js"
+    "start": "node app/todo-server.js"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/dmkitui/express-api-todo-app#readme",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "mongoose": "^5.3.1"
   },
   "devDependencies": {
     "eslint": "^5.6.1",
