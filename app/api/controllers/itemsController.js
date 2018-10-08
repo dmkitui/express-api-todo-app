@@ -7,83 +7,108 @@ const home = function (req, res, next) {
 };
 
 const getAllItems = function(req, res){
-	Item.find(function(error, results) {
-		if(error){
-			res.status(500);
-			res.json(error);
-		} else {
-			res.json(results);
-		}
-	});
+	if(req.session.userId) {
+		Item.find({owner: req.session.userId}, function (error, results) {
+			if (error) {
+				res.status(500);
+				res.json(error);
+			} else {
+				res.json(results);
+			}
+		});
+	} else {
+		res.status(403);
+		res.json('Not logged in');
+	}
 };
 
 const postNewItem = function(req, res){
-	if(req.body.title) {
-		Item.create(req.body, function (error, item) {
-			if(error) {
-				if(error.name === 'MongoError'){
-					res.status(400);
-					return res.json(error.errmsg);
-				} else {
-					res.status(500);
-					return res.json(error);
+	if(req.session.userId) {
+		if (req.body.title) {
+			req.body.owner = req.session.userId;
+			Item.create(req.body, function (error, item) {
+				if (error) {
+					if (error.name === 'MongoError') {
+						res.status(400);
+						return res.json(error.errmsg);
+					} else {
+						res.status(500);
+						return res.json(error);
+					}
 				}
-			}
-			return res.json(item);
-		});
+				return res.json(item);
+			});
+		} else {
+			const error = new Error('Title is required');
+			res.status(400);
+			return res.json(error);
+		}
 	} else {
-		const error = new Error('Title is required');
-		res.status(400);
-		return res.json(error);
+		res.status(403);
+		res.json('Not logged in');
 	}
 };
 
 const getItem = function(req, res){
-	Item.findById(req.params.itemId, (error, item) => {
-		if(error){
-			res.status(404);
-			res.json('Item does not exist');
-		} else {
-			res.json(item);
-		}
-	});
+	if(req.session.userId) {
+		Item.findById(req.params.itemId, (error, item) => {
+			if (error) {
+				res.status(404);
+				res.json('Item does not exist');
+			} else {
+				res.json(item);
+			}
+		});
+	} else {
+		res.status(403);
+		res.json('Not logged in');
+	}
 };
 
 const deleteItem = function(req, res, next){
-	Item.findById(req.params.itemId, (error, item) => {
-		if (error) {
-			res.status(404);
-			res.json('Item does not exist');
-		} else {
-			Item.remove(err => {
-				if (err) {
-					res.status(500);
-					res.json('Internal server error');
-				}
-				else {
-					res.status(204);
-					res.json(`Item ${req.params.itemId} deleted successfully`);
-				}
-			});
-		}
-	});
+	if(req.session.userId) {
+		Item.findById(req.params.itemId, (error, item) => {
+			if (error) {
+				res.status(404);
+				res.json('Item does not exist');
+			} else {
+				Item.remove(err => {
+					if (err) {
+						res.status(500);
+						res.json('Internal server error');
+					}
+					else {
+						res.status(204);
+						res.json(`Item ${req.params.itemId} deleted successfully`);
+					}
+				});
+			}
+		});
+	} else {
+		res.status(403);
+		res.json('Not logged in');
+	}
 };
 
 const editItem = function(req, res, next){
-	console.log('Put started....')
-	Item.findById(req.params.itemId, (error, item) => {
-		if(error) {
-			res.status(404);
-			res.json('Item does not exist');
-		} else {
-			for( let p in req.body ){
-				item[p] = req.body[p];
+	if(req.session.userId) {
+		Item.findById(req.params.itemId, (error, item) => {
+			if (error) {
+				res.status(404);
+				res.json('Item does not exist');
+			} else {
+				for (let p in req.body) {
+					item[p] = req.body[p];
+				}
+				item.save();
+				res.status(204);
+				res.json(item);
 			}
-			item.save();
-			res.status(204)
-			res.json(item);
-		}
-	});
+		});
+	} else {
+		res.status(403);
+		res.json('Not logged in');
+	}
 };
 
 
