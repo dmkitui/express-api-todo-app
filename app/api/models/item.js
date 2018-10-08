@@ -18,6 +18,10 @@ const ItemSchema = new Schema({
 	status: {
 		type: Boolean,
 		default: false
+	},
+	owner: {
+		type: String,
+		required: [true, 'Not logged in'],
 	}
 });
 
