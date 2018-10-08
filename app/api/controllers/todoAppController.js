@@ -1,4 +1,5 @@
 const Item = require('../models/item');
+const db = require('../../todo-server').db;
 //const mongoose = require('mongoose');
 //const Item = mongoose.model('Item');
 
@@ -8,9 +9,16 @@ const home = function (req, res, next) {
 	next();
 };
 
-const getAllItems = function(req, res, next){
-	res.json('Get all Posts route');
-	next();
+const getAllItems = function(req, res){
+	Item.find(function(error, results) {
+		if(error){
+			res.status(500);
+			res.json(error);
+		} else {
+			res.json(results);
+		}
+	});
+//	next();
 };
 
 const postNewItem = function(req, res){
@@ -21,7 +29,7 @@ const postNewItem = function(req, res){
 					res.status(400);
 					return res.json(error.errmsg);
 				} else {
-					res.status(500)
+					res.status(500);
 					return res.json(error);
 				}
 			}
