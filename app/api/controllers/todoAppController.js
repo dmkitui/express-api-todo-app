@@ -1,7 +1,5 @@
 const Item = require('../models/item');
 const db = require('../../todo-server').db;
-//const mongoose = require('mongoose');
-//const Item = mongoose.model('Item');
 
 const home = function (req, res, next) {
 	console.log('STATUS: ', res.statusCode);
@@ -42,20 +40,54 @@ const postNewItem = function(req, res){
 	}
 };
 
-const getItem = function(req, res, next){
-	res.json('View One Item');
-	next();
+const getItem = function(req, res){
+	Item.findById(req.params.itemId, (error, item) => {
+		if(error){
+			res.status(404);
+			res.json('Item does not exist');
+		} else {
+			res.json(item);
+		}
+	});
 };
 
 const deleteItem = function(req, res, next){
-	res.json('Delete One Item');
-	next();
+	Item.findById(req.params.itemId, (error, item) => {
+		if (error) {
+			res.status(404);
+			res.json('Item does not exist');
+		} else {
+			Item.remove(err => {
+				if (err) {
+					res.status(500);
+					res.json('Internal server error');
+				}
+				else {
+					res.status(204);
+					res.json(`Item ${req.params.itemId} deleted successfully`);
+				}
+			});
+		}
+	});
 };
 
 const editItem = function(req, res, next){
-	res.json('Edit One Item');
-	next();
+	console.log('Put started....')
+	Item.findById(req.params.itemId, (error, item) => {
+		if(error) {
+			res.status(404);
+			res.json('Item does not exist');
+		} else {
+			for( let p in req.body ){
+				item[p] = req.body[p];
+			}
+			item.save();
+			res.status(204)
+			res.json(item);
+		}
+	});
 };
+
 
 module.exports.home = home;
 module.exports.getItems = getAllItems;
