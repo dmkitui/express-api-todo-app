@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 
 const UserSchema = new Schema({
-	userName: {
+	username: {
 		type: String,
 		required: [true, 'Username is required'],
-		unique: [true, 'UserName already exists']
+		unique: [true, 'Username already exists']
 	},
 	email: {
 	  type: String,
@@ -23,6 +23,26 @@ const UserSchema = new Schema({
 	}
 });
 
+UserSchema.statics.authenticate = function(username, password, callback) {
+	User.findOne({ username: username})
+		.exec(function(error, user) {
+			if (error) {
+				callback(error);
+			} else if (!user) {
+				const error = new Error('User does not exist');
+				error.status = 401;
+				return callback(error);
+			}
+			bcrypt.compare(password, user.password, function(error, result){
+				if(result === true) {
+					return callback(null, user);
+				} else {
+					return callback();
+				}
+			});
+		});
+};
+
 UserSchema.pre('save', function(next) {
 	const user = this;
 	bcrypt.hash(user.password, 10, function(error, hash) {
@@ -32,8 +52,7 @@ UserSchema.pre('save', function(next) {
 			user.password = hash;
 			next();
 		}
-	}
-	);
+	});
 });
 
 const User = mongoose.model('User', UserSchema);
