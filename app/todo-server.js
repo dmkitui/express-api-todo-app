@@ -2,8 +2,14 @@ const express = require('express');
 const itemRoutes = require('./api/routes/items');
 const userRoutes = require('./api/routes/users');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 const app = express();
+app.use(session({
+	secret:'sdfsdfdsfdsfds3243223dsfsdf2332423erwe',
+	resave: true,
+	saveUninitialized: false
+}));
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true });
