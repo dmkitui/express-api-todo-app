@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/usersController');
+const usersController = require('../controllers/usersController');
 
 router.route('/register')
-	.post(controller.registerUser);
+	.post(usersController.registerUser);
+
+router.route('/login')
+	.post(usersController.loginUser);
 
 router.route('/:userId').get();
 
