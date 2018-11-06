@@ -1,7 +1,6 @@
 const Item = require('../models/item');
 
 const home = function (req, res, next) {
-	console.log('STATUS: ', res.statusCode);
 	res.json('This is home!');
 };
 
